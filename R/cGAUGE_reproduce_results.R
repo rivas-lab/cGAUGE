@@ -38,15 +38,19 @@
 # Set the working dir to where the data files are and load the data
 setwd("~/Desktop/causal_inference_projects/ms2/data")
 # Source the code with the functions
-source("https://raw.githubusercontent.com/rivas-lab/cGAUGE/master/R/cGAUGE.R?token=ADT2FBVF5FGJOOBMWYUOCAS5J4GAO")
+source("https://raw.githubusercontent.com/rivas-lab/cGAUGE/master/R/cGAUGE.R?token=ADT2FBSPNAMHJZPBVDS2MKK5J5JJM")
 
 # Load the real data from the paper
+
+# The are the trait annotation
+# Their raw codes are used in the Rivaslab GBE and are not human
+# readable. Here we create the map from codes to their description
 rivaslab_pheno_codes_file = "icdinfo.txt"
 rivaslab_codes = read.delim(rivaslab_pheno_codes_file,stringsAsFactors = F,header=F)
 rownames(rivaslab_codes) = rivaslab_codes[,1]
 icd2name = rivaslab_codes[,3];names(icd2name) = rownames(rivaslab_codes)
 
-# Analysis of 96 traits
+# Define the paths to the data files
 conditional_indep_tests = "genetic_CI_tests_results.RData"
 skeleton_file = "Gs_skeleton.RData"
 maf_file = "genotypes.frq"
@@ -73,26 +77,35 @@ pruned_snp_list = intersect(pruned_snp_list,rownames(snp_matrix))
 pruned_snp_list = setdiff(pruned_snp_list,mhc_snps)
 # restrict the analysis to use the filters defined above
 GWAS_Ps = snp_matrix[pruned_snp_list,]
+# Add missing names to the mapping vector
+missing_names = setdiff(colnames(GWAS_Ps),names(icd2name))
+icd2name[missing_names] = missing_names
+icd2name = icd2name[colnames(GWAS_Ps)]
 
-# Create the toy dataset - BMI, SBP, LDL, MI, angina
-toy_dataset_traits = c("INI21001","INI4080","LDL_direct","HC326","HC132")
-is.element(toy_dataset_traits,set=names(trait_pair_pvals))
-for(tr in toy_dataset_traits){
-  trait_pair_pvals[[tr]] = trait_pair_pvals[[tr]][toy_dataset_traits]
-}
-trait_pair_pvals = trait_pair_pvals[toy_dataset_traits]
-skeleton_pmax = skeleton_pmax[toy_dataset_traits,toy_dataset_traits]
-GWAS_Ps = GWAS_Ps[,toy_dataset_traits]
-code2pruned_list = code2pruned_list[toy_dataset_traits]
-code2clumped_list = code2clumped_list[toy_dataset_traits]
-icd2name = icd2name[is.element(icd2name,set=toy_dataset_traits)]
-sum_stat_matrix = sum_stat_matrix[,toy_dataset_traits]
-sum_stat_se_matrix = sum_stat_se_matrix[,toy_dataset_traits]
-save(trait_pair_pvals,GWAS_Ps,skeleton_pmax,
-     pruned_snp_list,code2clumped_list,code2pruned_list,icd2name,
-     sum_stat_se_matrix, sum_stat_matrix,
-     file = "toy_dataset.RData")
-gc()
+# # Create the toy dataset - BMI, SBP, LDL, MI, angina
+# toy_dataset_traits = c("INI21001","INI4080","LDL_direct","HC326","HC132")
+# is.element(toy_dataset_traits,set=names(trait_pair_pvals))
+# for(tr in toy_dataset_traits){
+#   trait_pair_pvals[[tr]] = trait_pair_pvals[[tr]][toy_dataset_traits]
+# }
+# trait_pair_pvals = trait_pair_pvals[toy_dataset_traits]
+# skeleton_pmax = skeleton_pmax[toy_dataset_traits,toy_dataset_traits]
+# GWAS_Ps = GWAS_Ps[,toy_dataset_traits]
+# code2pruned_list = code2pruned_list[toy_dataset_traits]
+# code2clumped_list = code2clumped_list[toy_dataset_traits]
+# icd2name = icd2name[toy_dataset_traits]
+# icd2name["LDL_direct"] = "LDL_direct"
+# sum_stat_matrix = sum_stat_matrix[,toy_dataset_traits]
+# sum_stat_se_matrix = sum_stat_se_matrix[,toy_dataset_traits]
+# save(trait_pair_pvals,GWAS_Ps,skeleton_pmax,
+#      pruned_snp_list,code2clumped_list,code2pruned_list,icd2name,
+#      sum_stat_se_matrix, sum_stat_matrix,
+#      file = "toy_dataset.RData")
+# # Add missing names to the mapping vector
+# missing_names = setdiff(colnames(GWAS_Ps),names(icd2name))
+# icd2name[missing_names] = missing_names
+# icd2name = icd2name[colnames(GWAS_Ps)]
+# gc()
 
 # Load the toy dataset
 load("./toy_dataset.RData")
@@ -135,6 +148,9 @@ cleaned_Egger_res = cbind(cleaned_Egger_res,is_non_pleio)
 effect_direction = rep("Up",nrow(cleaned_Egger_res))
 effect_direction[as.numeric(cleaned_Egger_res[,"Est"])<0] = "Down"
 cleaned_Egger_res = cbind(cleaned_Egger_res,effect_direction)
+# map to readable names
+cleaned_Egger_res[,1] = icd2name[cleaned_Egger_res[,1]]
+cleaned_Egger_res[,2] = icd2name[cleaned_Egger_res[,2]]
 # cleaned_Egger_res - the final table with the MR-Egger results
 
 
