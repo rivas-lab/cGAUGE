@@ -214,7 +214,7 @@ combine_mm_mr_analyses<-function(mm,mr,p_thr=0.1,p_h_thr=0,pi1_thr=0.5,minIVs=5)
   filter4 = as.numeric(as.character(mr[,ncol(mr)])) >= minIVs
   res_inds = (filter2 & filter4) | (filter1 & filter4 & filter3)
   res_inds[is.na(res_inds)]=F
-  res = cbind(mr[res_inds,c(1:3,5)],mm[res_inds,4:5])
+  res = cbind(mr[res_inds,c(1:3,5)],mm[res_inds,3:4])
   colnames(res) = c("Cause","Effect","P","Est","Pi1","NumIVs")
   return(res)
 }
