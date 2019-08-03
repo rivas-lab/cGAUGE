@@ -153,5 +153,23 @@ cleaned_Egger_res[,1] = icd2name[cleaned_Egger_res[,1]]
 cleaned_Egger_res[,2] = icd2name[cleaned_Egger_res[,2]]
 # cleaned_Egger_res - the final table with the MR-Egger results
 
+# Use if cGAUGE was run on the real data (i.e., NOT the toy example)
+# Here we load the data file with the results for p1=0.001 and p2 = 1e-07
+# that were used as a part of the interpretation in the paper
+# We check the agreement between the results.
+# 
+# load( paste(out_path,"three_rule_analysis_",p1,"_",p2,".RData",sep=""))
+# all(table(G_it == cGAUGE_G_VT))
+# length(cGAUGE_EdgeSep) == length(detected_cis_per_edge)
+# all(newly_formed_sigs == cGAUGE_DepEmerge[[2]])
+# for(i in 1:length(detected_cis_per_edge)){
+#   if(is.element("list",set=sapply(detected_cis_per_edge[[i]],class))){
+#     print(all(unlist(cGAUGE_EdgeSep[[i]]) == unlist(detected_cis_per_edge[[i]][-1])))
+#   }
+#   else{
+#     print(all(unlist(cGAUGE_EdgeSep[[i]]) == unlist(detected_cis_per_edge[[i]])))
+#   }
+# }
+
 
 
